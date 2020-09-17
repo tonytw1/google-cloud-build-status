@@ -1,4 +1,4 @@
-Translates Google Cloud Build status pushes arriving on our MQTT topic into a radio group of on/offs messages.
+Translates Google Cloud Build status pushes arriving on a MQTT topic into a radio group of on/off messages.
 
 ie.
 ```
@@ -8,5 +8,5 @@ WORKING ->  QUEUED:false
             SUCCESS:false
 ```
 
-This is used to drive one of or dashboards.
+This is used to drive one of our dashboards.
 
