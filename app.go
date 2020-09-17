@@ -5,7 +5,6 @@ import (
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/tkanos/gonfig"
 	"strconv"
-	"time"
 )
 
 type Configuration struct {
