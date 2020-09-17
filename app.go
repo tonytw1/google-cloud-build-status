@@ -28,8 +28,8 @@ func main() {
 	mqtt_metrics_topic := configuration.MqttMetricsTopic
 
 	opts := mqtt.NewClientOptions().AddBroker(mqtt_url)
-	opts.SetKeepAlive(2 * time.Second)
-	opts.SetPingTimeout(1 * time.Second)
+	//opts.SetKeepAlive(2 * time.Second)
+	//opts.SetPingTimeout(1 * time.Second)
 
 	println("Connecting to: ", mqtt_url)
 	c := mqtt.NewClient(opts)
