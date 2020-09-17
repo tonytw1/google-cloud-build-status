@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/tkanos/gonfig"
 	"strconv"
-	"github.com/eclipse/paho.mqtt.golang"
 	"time"
 )
 
 type Configuration struct {
-	MqttUrl       string
-	MqttTopic     string
+	MqttUrl          string
+	MqttTopic        string
 	MqttMetricsTopic string
 }
 
@@ -31,6 +31,7 @@ func main() {
 	opts.SetKeepAlive(2 * time.Second)
 	opts.SetPingTimeout(1 * time.Second)
 
+	println("Connecting to: ", mqtt_url)
 	c := mqtt.NewClient(opts)
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
@@ -44,15 +45,15 @@ func main() {
 
 		current_status := string(payload)
 
-		for _, status := range(cloud_build_statuses) {
-			is_current := status == current_status;
+		for _, status := range cloud_build_statuses {
+			is_current := status == current_status
 			s := status + ":" + strconv.FormatBool(is_current)
 			println(s)
 			publish(c, mqtt_metrics_topic, s)
 		}
 	}
 
-	println("Subscribing")
+	println("Subscribing to: ", mqtt_topic)
 	go c.Subscribe(mqtt_topic, 0, messageHandler)
 
 	select {} // block forever
