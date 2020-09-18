@@ -63,7 +63,9 @@ func main() {
 	for {
 		time.Sleep(1000 * time.Millisecond)
 		if !c.IsConnectionOpen() {
-			os.Exit(1) // TODO If the client appears to reconnect after a Mosquitto outage but the subscription is inactive
+			// TODO If the client appears to reconnect after a Mosquitto outage but the subscription is inactive
+			// https://github.com/eclipse/paho.mqtt.golang/issues/22
+			os.Exit(1)
 		}
 
 	}
