@@ -28,19 +28,7 @@ func main() {
 	mqtt_topic := configuration.MqttTopic
 	mqtt_metrics_topic := configuration.MqttMetricsTopic
 
-	opts := mqtt.NewClientOptions().AddBroker(mqtt_url)
-	opts.SetKeepAlive(10 * time.Second)
-	opts.SetPingTimeout(10 * time.Second)
-
-	println("Connecting to: ", mqtt_url)
-	c := mqtt.NewClient(opts)
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-	}
-	defer c.Disconnect(250)
-
 	var messageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-		fmt.Printf("TOPIC: %s\n", msg.Topic())
 		payload := msg.Payload()
 		fmt.Printf("MSG: %s\n", payload)
 
@@ -50,24 +38,34 @@ func main() {
 			is_current := status == current_status
 			s := status + ":" + strconv.FormatBool(is_current)
 			println(s)
-			publish(c, mqtt_metrics_topic, s)
+			publish(client, mqtt_metrics_topic, s)
 		}
 	}
 
-	println("Subscribing to:", mqtt_topic)
-	if token := c.Subscribe(mqtt_topic, 0, messageHandler); token.Wait() && token.Error() != nil {
-		fmt.Println(token.Error())
-		os.Exit(1)
-	}
-
-	for {
-		time.Sleep(1000 * time.Millisecond)
-		if !c.IsConnectionOpen() {
-			// TODO If the client appears to reconnect after a Mosquitto outage but the subscription is inactive
-			// https://github.com/eclipse/paho.mqtt.golang/issues/22
+	var subscribeToCloudBuildTopic = func(client mqtt.Client) {
+		println("Connected")
+		println("Subscribing to:", mqtt_topic)
+		if token := client.Subscribe(mqtt_topic, 0, messageHandler); token.Wait() && token.Error() != nil {
+			fmt.Println("Subscription error", token.Error())
 			os.Exit(1)
 		}
+	}
 
+	opts := mqtt.NewClientOptions().AddBroker(mqtt_url)
+	opts.SetKeepAlive(10 * time.Second)
+	opts.SetPingTimeout(10 * time.Second)
+	opts.OnConnect = subscribeToCloudBuildTopic
+	opts.SetCleanSession(true)
+
+	println("Connecting to: ", mqtt_url)
+	c := mqtt.NewClient(opts)
+	if token := c.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
+	}
+	defer c.Disconnect(250)
+
+	for {
+		time.Sleep(10 * time.Second)
 	}
 }
 
