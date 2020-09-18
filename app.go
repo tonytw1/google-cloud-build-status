@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/tkanos/gonfig"
+	"os"
 	"strconv"
+	"time"
 )
 
 type Configuration struct {
@@ -27,8 +29,8 @@ func main() {
 	mqtt_metrics_topic := configuration.MqttMetricsTopic
 
 	opts := mqtt.NewClientOptions().AddBroker(mqtt_url)
-	//opts.SetKeepAlive(2 * time.Second)
-	//opts.SetPingTimeout(1 * time.Second)
+	opts.SetKeepAlive(10 * time.Second)
+	opts.SetPingTimeout(10 * time.Second)
 
 	println("Connecting to: ", mqtt_url)
 	c := mqtt.NewClient(opts)
@@ -52,11 +54,19 @@ func main() {
 		}
 	}
 
-	println("Subscribing to: ", mqtt_topic)
-	go c.Subscribe(mqtt_topic, 0, messageHandler)
+	println("Subscribing to:", mqtt_topic)
+	if token := c.Subscribe(mqtt_topic, 0, messageHandler); token.Wait() && token.Error() != nil {
+		fmt.Println(token.Error())
+		os.Exit(1)
+	}
 
-	select {} // block forever
-	println("Done")
+	for {
+		time.Sleep(1000 * time.Millisecond)
+		if !c.IsConnectionOpen() {
+			os.Exit(1) // TODO If the client appears to reconnect after a Mosquitto outage but the subscription is inactive
+		}
+
+	}
 }
 
 func publish(c mqtt.Client, topic string, message string) {
