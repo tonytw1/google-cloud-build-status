@@ -1,7 +1,9 @@
-Translates Google Cloud Build status pushes arriving on a MQTT topic into a radio group of on/off messages.
+Translates Google Cloud Build status pushes arriving on the input MQTT topic into a radio group of on/off messages on the output topic.
 
 ie.
 ```
+topic1      topic2
+-------     ------
 WORKING ->  QUEUED:false
             WORKING:true
             FAILED:false
@@ -10,3 +12,9 @@ WORKING ->  QUEUED:false
 
 This is used to drive one of our dashboards.
 
+Dependencies
+
+```
+go get github.com/gorilla/websocket
+go get golang.org/x/net/proxy
+```
