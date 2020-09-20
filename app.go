@@ -56,6 +56,7 @@ func main() {
 	opts.SetPingTimeout(10 * time.Second)
 	opts.OnConnect = subscribeToCloudBuildTopic
 	opts.SetCleanSession(true)
+	opts.SetClientID("google-cloud-build-status")
 
 	println("Connecting to: ", mqtt_url)
 	c := mqtt.NewClient(opts)
