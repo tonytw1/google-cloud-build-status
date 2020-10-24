@@ -37,7 +37,6 @@ func main() {
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
 			s := status + ":" + strconv.FormatBool(is_current)
-			println(s)
 			publish(client, mqtt_metrics_topic, s)
 		}
 	}
