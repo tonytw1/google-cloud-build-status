@@ -34,6 +34,11 @@ func main() {
 
 		current_status := string(payload)
 
+		// For our proposes a timeout is a failure
+		if current_status == "TIMEOUT" {
+			current_status = "FAILURE"
+		}
+
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
 			s := status + ":" + strconv.FormatBool(is_current)
