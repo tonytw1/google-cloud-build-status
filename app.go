@@ -76,5 +76,5 @@ func main() {
 
 func publish(c mqtt.Client, topic string, message string) {
 	token := c.Publish(topic, 0, false, message)
-	token.Wait()
+	token.WaitTimeout(time.Second * 1)
 }
