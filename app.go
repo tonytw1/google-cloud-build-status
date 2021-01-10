@@ -41,13 +41,12 @@ func main() {
 
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
-			s := status + ":" + strconv.FormatBool(is_current)
+			s := "cloudbuild_" + status + ":" + strconv.FormatBool(is_current)
 			publish(client, mqtt_metrics_topic, s)
 		}
 	}
 
 	var subscribeToCloudBuildTopic = func(client mqtt.Client) {
-		println("Connected")
 		println("Subscribing to:", mqtt_topic)
 		if token := client.Subscribe(mqtt_topic, 0, messageHandler); token.Wait() && token.Error() != nil {
 			fmt.Println("Subscription error", token.Error())
