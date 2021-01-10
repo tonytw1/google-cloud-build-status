@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/tkanos/gonfig"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -55,15 +56,33 @@ func main() {
 		}
 	}
 
+	var logConnection mqtt.OnConnectHandler = func(client mqtt.Client) {
+		log.Print("Connected")
+		subscribeToCloudBuildTopic(client)
+	}
+
+	var logConnectionLost mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
+		log.Print("Connection lost")
+	}
+
+	var logReconnecting mqtt.ReconnectHandler = func(client mqtt.Client, opts *mqtt.ClientOptions) {
+		log.Print("Reconnecting")
+	}
+
 	opts := mqtt.NewClientOptions().AddBroker(mqtt_url)
-	opts.SetKeepAlive(10 * time.Second)
-	opts.SetPingTimeout(10 * time.Second)
-	opts.OnConnect = subscribeToCloudBuildTopic
+	opts.SetOnConnectHandler(logConnection)
+	opts.SetConnectionLostHandler(logConnectionLost)
+	opts.SetReconnectingHandler(logReconnecting)
 	opts.SetCleanSession(true)
 	opts.SetClientID("google-cloud-build-status")
 
+	mqtt.ERROR = log.New(os.Stdout, "[ERROR] ", 0)
+	mqtt.CRITICAL = log.New(os.Stdout, "[CRIT] ", 0)
+	mqtt.WARN = log.New(os.Stdout, "[WARN]  ", 0)
+
 	println("Connecting to: ", mqtt_url)
 	c := mqtt.NewClient(opts)
+
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
