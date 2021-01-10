@@ -30,7 +30,7 @@ func main() {
 
 	var messageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 		payload := msg.Payload()
-		fmt.Printf("MSG: %s\n", payload)
+		fmt.Printf("Recieved status: %s", payload)
 
 		current_status := string(payload)
 
@@ -41,8 +41,9 @@ func main() {
 
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
-			s := "cloudbuild_" + status + ":" + strconv.FormatBool(is_current)
-			publish(client, mqtt_metrics_topic, s)
+			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(is_current)
+			publish(client, mqtt_metrics_topic, publishedMessage)
+			fmt.Printf("Published message: %s", publishedMessage)
 		}
 	}
 
@@ -69,7 +70,7 @@ func main() {
 	defer c.Disconnect(250)
 
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 
