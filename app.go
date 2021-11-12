@@ -44,7 +44,7 @@ func main() {
 			is_current := status == current_status
 			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(is_current)
 			publish(client, mqtt_metrics_topic, publishedMessage)
-			log.Print(fmt.Sprintf("Published message: %s to topic %s", publishedMessage, mqtt_topic))
+			log.Print(fmt.Sprintf("Published message: %s to topic %s", publishedMessage, mqtt_metrics_topic))
 		}
 	}
 
