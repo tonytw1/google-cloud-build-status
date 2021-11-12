@@ -31,7 +31,7 @@ func main() {
 
 	var messageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 		payload := msg.Payload()
-		fmt.Printf("Recieved status: %s", payload)
+		log.Print(fmt.Sprintf("Recieved status: %s", payload))
 
 		current_status := string(payload)
 
@@ -44,14 +44,14 @@ func main() {
 			is_current := status == current_status
 			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(is_current)
 			publish(client, mqtt_metrics_topic, publishedMessage)
-			fmt.Printf("Published message: %s", publishedMessage)
+			log.Print(fmt.Sprintf("Published message: %s", publishedMessage))
 		}
 	}
 
 	var subscribeToCloudBuildTopic = func(client mqtt.Client) {
 		println("Subscribing to:", mqtt_topic)
 		if token := client.Subscribe(mqtt_topic, 0, messageHandler); token.Wait() && token.Error() != nil {
-			fmt.Println("Subscription error", token.Error())
+			log.Print(fmt.Sprintf("Subscription error", token.Error()))
 			os.Exit(1)
 		}
 	}
