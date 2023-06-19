@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
@@ -15,6 +16,29 @@ type Configuration struct {
 	MqttUrl          string
 	MqttTopic        string
 	MqttMetricsTopic string
+}
+
+type Attributes struct {
+	BuildId string `json:"buildId"`
+	Status  string `json:"status"`
+}
+
+type Message struct {
+	MessageId   string     `json:"messageId"`
+	PublishTime string     `json:"publishTime"`
+	Attributes  Attributes `json:"attributes"`
+	Data        string     `json:"data"`
+}
+
+type Push struct {
+	Subscription string  `json:"subscription"`
+	Message      Message `json:"message"`
+	PublishTime  string  `json:"publishTime"`
+}
+
+type Payload struct {
+	Id     string `json:"id"`
+	Status string `json:"status"`
 }
 
 func main() {
@@ -36,29 +60,33 @@ func main() {
 		log.Print(fmt.Sprintf("Received status: %s", payload))
 
 		// Parse the JSON payload
-		type Summary struct {
-			Status        string `json:"status"`
-			PublishedTime string `json:"publishedTime"`
-		}
-
-		var summary Summary
-		err = json.Unmarshal(payload, &summary)
+		var push Push
+		err = json.Unmarshal(payload, &push)
 		if err != nil {
 			log.Print("Could not parse message")
 			return
 		}
 
-		// Extract the interesting fields
-		current_status := summary.Status
+		// Extract the payload
+		var base64Data = push.Message.Data
+		var dataJson, err = base64.StdEncoding.DecodeString(base64Data)
+		if err != nil {
+			log.Print("Could not decode base64 payload")
+		}
+
+		var data Payload
+		err = json.Unmarshal(dataJson, &data)
+
+		current_status := data.Status
 		// For our proposes a timeout is a failure
 		if current_status == "TIMEOUT" {
 			current_status = "FAILURE"
 		}
 		log.Print("Status is: ", current_status)
 
-		log.Print("published time string is: " + summary.PublishedTime)
-		var published_time, err = time.Parse(time.RFC3339, summary.PublishedTime)
-		if err != nil {
+		log.Print("published time string is: " + push.PublishTime)
+		var published_time, derr = time.Parse(time.RFC3339, push.PublishTime)
+		if derr != nil {
 			log.Print("Could not parse published date")
 			return
 		}
