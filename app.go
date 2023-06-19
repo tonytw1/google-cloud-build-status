@@ -76,30 +76,30 @@ func main() {
 		var data Data
 		err = json.Unmarshal(dataJson, &data)
 
-		current_status := data.Status
+		currentStatus := data.Status
 		// For our proposes a timeout is a failure
-		if current_status == "TIMEOUT" {
-			current_status = "FAILURE"
+		if currentStatus == "TIMEOUT" {
+			currentStatus = "FAILURE"
 		}
-		log.Print("Status is: ", current_status)
+		log.Print("Status is: ", currentStatus)
 
 		log.Print("published time string is: " + push.Message.PublishTime)
-		var publish_time, derr = time.Parse(time.RFC3339, push.Message.PublishTime)
+		var publishTime, derr = time.Parse(time.RFC3339, push.Message.PublishTime)
 		if derr != nil {
 			log.Print("Could not parse published date")
 			return
 		}
-		log.Print("Published time was: ", publish_time.String(), latest_published_time.String())
-		if publish_time.Before(latest_published_time) {
-			log.Print("Ignoring out of order message: ", publish_time.String())
+		log.Print("Published time was: ", publishTime.String(), latest_published_time.String())
+		if publishTime.Before(latest_published_time) {
+			log.Print("Ignoring out of order message: ", publishTime.String())
 			return
 		}
 
-		latest_published_time = publish_time
+		latest_published_time = publishTime
 
 		for _, status := range cloud_build_statuses {
-			is_current := status == current_status
-			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(is_current)
+			isCurrent := status == currentStatus
+			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(isCurrent)
 			publish(client, mqtt_metrics_topic, publishedMessage)
 			log.Print(fmt.Sprintf("Published message: %s to topic %s", publishedMessage, mqtt_metrics_topic))
 		}
