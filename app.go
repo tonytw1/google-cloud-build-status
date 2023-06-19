@@ -30,12 +30,12 @@ type Message struct {
 	Data        string     `json:"data"`
 }
 
-type Push struct {
+type Callback struct {
 	Subscription string  `json:"subscription"`
 	Message      Message `json:"message"`
 }
 
-type Payload struct {
+type Data struct {
 	Id     string `json:"id"`
 	Status string `json:"status"`
 }
@@ -59,7 +59,7 @@ func main() {
 		log.Print(fmt.Sprintf("Received status: %s", payload))
 
 		// Parse the JSON payload
-		var push Push
+		var push Callback
 		err = json.Unmarshal(payload, &push)
 		if err != nil {
 			log.Print("Could not parse message")
@@ -73,7 +73,7 @@ func main() {
 			log.Print("Could not decode base64 payload")
 		}
 
-		var data Payload
+		var data Data
 		err = json.Unmarshal(dataJson, &data)
 
 		current_status := data.Status
