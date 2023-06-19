@@ -33,7 +33,6 @@ type Message struct {
 type Push struct {
 	Subscription string  `json:"subscription"`
 	Message      Message `json:"message"`
-	PublishTime  string  `json:"publishTime"`
 }
 
 type Payload struct {
@@ -84,17 +83,17 @@ func main() {
 		}
 		log.Print("Status is: ", current_status)
 
-		log.Print("published time string is: " + push.PublishTime)
-		var published_time, derr = time.Parse(time.RFC3339, push.PublishTime)
+		log.Print("published time string is: " + push.Message.PublishTime)
+		var publish_time, derr = time.Parse(time.RFC3339, push.Message.PublishTime)
 		if derr != nil {
 			log.Print("Could not parse published date")
 			return
 		}
-		log.Print("Published time was: ", published_time.String(), latest_published_time.String())
-		if published_time.Before(latest_published_time) {
-			log.Print("Ignoring out of order message: ", published_time.String())
+		log.Print("Published time was: ", publish_time.String(), latest_published_time.String())
+		if publish_time.Before(latest_published_time) {
+			log.Print("Ignoring out of order message: ", publish_time.String())
 		}
-		latest_published_time = published_time
+		latest_published_time = publish_time
 
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
