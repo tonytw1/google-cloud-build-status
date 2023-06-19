@@ -54,7 +54,7 @@ func main() {
 			current_status = "FAILURE"
 		}
 
-		var published_time, err = time.Parse(time.RFC3339, summary.publishedTime)
+		var published_time, err = time.Parse("YYYY-MM-DDThh:mm:ss.sssZ", summary.publishedTime)
 		if err != nil {
 			log.Print("Could not parse published date")
 			return
