@@ -19,6 +19,7 @@ type Configuration struct {
 
 func main() {
 	cloud_build_statuses := []string{"QUEUED", "WORKING", "FAILURE", "TIMEOUT", "CANCELLED", "SUCCESS"}
+	latest_published_time := time.Now()
 
 	configuration := Configuration{}
 	err := gonfig.GetConf("config.json", &configuration)
@@ -61,7 +62,11 @@ func main() {
 			log.Print("Could not parse published date")
 			return
 		}
-		log.Print("Published time was: ", published_time)
+		log.Print("Published time was: ", published_time.String(), latest_published_time.String())
+		if published_time.Before(latest_published_time) {
+			log.Print("Ignoring out of order message: ", published_time.String())
+		}
+		latest_published_time = published_time
 
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
