@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
 	"github.com/tkanos/gonfig"
@@ -33,7 +34,21 @@ func main() {
 		payload := msg.Payload()
 		log.Print(fmt.Sprintf("Received status: %s", payload))
 
-		current_status := string(payload)
+		// Parse the JSON payload
+
+		type Summary struct {
+			status        string
+			publishedTime string
+		}
+
+		var summary Summary
+		err := json.Unmarshal(payload, &summary)
+		if err != nil {
+			log.Print("Could not parse message")
+			return
+		}
+
+		current_status := summary.status
 
 		// For our proposes a timeout is a failure
 		if current_status == "TIMEOUT" {
