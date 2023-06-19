@@ -36,8 +36,8 @@ func main() {
 
 		// Parse the JSON payload
 		type Summary struct {
-			status        string
-			publishedTime string
+			Status        string `json:"status"`
+			PublishedTime string `json:"publishedTime"`
 		}
 
 		var summary Summary
@@ -48,15 +48,15 @@ func main() {
 		}
 
 		// Extract the interesting fields
-		current_status := summary.status
+		current_status := summary.Status
 		// For our proposes a timeout is a failure
 		if current_status == "TIMEOUT" {
 			current_status = "FAILURE"
 		}
 		log.Print("Status is: ", current_status)
 
-		log.Print("published time string is: " + summary.publishedTime)
-		var published_time, err = time.Parse(time.RFC3339, summary.publishedTime)
+		log.Print("published time string is: " + summary.PublishedTime)
+		var published_time, err = time.Parse(time.RFC3339, summary.PublishedTime)
 		if err != nil {
 			log.Print("Could not parse published date")
 			return
