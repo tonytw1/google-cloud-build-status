@@ -35,25 +35,31 @@ func main() {
 		log.Print(fmt.Sprintf("Received status: %s", payload))
 
 		// Parse the JSON payload
-
 		type Summary struct {
 			status        string
 			publishedTime string
 		}
 
 		var summary Summary
-		err := json.Unmarshal(payload, &summary)
+		err = json.Unmarshal(payload, &summary)
 		if err != nil {
 			log.Print("Could not parse message")
 			return
 		}
 
+		// Extract the interesting fields
 		current_status := summary.status
-
 		// For our proposes a timeout is a failure
 		if current_status == "TIMEOUT" {
 			current_status = "FAILURE"
 		}
+
+		var published_time, err = time.Parse(time.RFC3339, summary.publishedTime)
+		if err != nil {
+			log.Print("Could not parse published date")
+			return
+		}
+		log.Print("Published time was: ", published_time)
 
 		for _, status := range cloud_build_statuses {
 			is_current := status == current_status
