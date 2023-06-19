@@ -92,7 +92,9 @@ func main() {
 		log.Print("Published time was: ", publish_time.String(), latest_published_time.String())
 		if publish_time.Before(latest_published_time) {
 			log.Print("Ignoring out of order message: ", publish_time.String())
+			return
 		}
+
 		latest_published_time = publish_time
 
 		for _, status := range cloud_build_statuses {
