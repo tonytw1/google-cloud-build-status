@@ -1,8 +1,12 @@
-Translates Google Cloud Build status pushes arriving on the input MQTT topic into a radio group of on/off messages on the output topic.
+## Google Cloud Build status
+
+Listens on a MQTT topic for Google Cloud Build JSON callbacks.
+
+Parses the callback and emits the latest build status onto another MQTT topic as a group of booleans.
 
 ie.
 ```
-topic1      topic2
+input       output
 -------     ------
 WORKING ->  QUEUED:false
             WORKING:true
@@ -10,15 +14,4 @@ WORKING ->  QUEUED:false
             SUCCESS:false
 ```
 
-This is used to drive one of our dashboards.
-
-Dependencies
-
-```
-go get github.com/eclipse/paho.mqtt.golang
-
-go get github.com/gorilla/websocket
-go get golang.org/x/net/proxy
-
-go get github.com/tkanos/gonfig
-```
+This is used to drive one of our build status dashboards.
