@@ -41,8 +41,8 @@ type Data struct {
 }
 
 func main() {
-	cloud_build_statuses := []string{"QUEUED", "WORKING", "FAILURE", "TIMEOUT", "CANCELLED", "SUCCESS"}
-	latest_published_time := time.Now()
+	cloudBuildStatuses := []string{"QUEUED", "WORKING", "FAILURE", "TIMEOUT", "CANCELLED", "SUCCESS"}
+	latestPublishedTime := time.Now()
 
 	configuration := Configuration{}
 	err := gonfig.GetConf("config.json", &configuration)
@@ -50,9 +50,9 @@ func main() {
 		panic(err)
 	}
 
-	mqtt_url := configuration.MqttUrl
-	mqtt_topic := configuration.MqttTopic
-	mqtt_metrics_topic := configuration.MqttMetricsTopic
+	mqttUrl := configuration.MqttUrl
+	mqttTopic := configuration.MqttTopic
+	mqttMetricsTopic := configuration.MqttMetricsTopic
 
 	var messageHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 		payload := msg.Payload()
@@ -89,25 +89,25 @@ func main() {
 			log.Print("Could not parse published date")
 			return
 		}
-		log.Print("Published time was: ", publishTime.String(), latest_published_time.String())
-		if publishTime.Before(latest_published_time) {
+		log.Print("Published time was: ", publishTime.String(), latestPublishedTime.String())
+		if publishTime.Before(latestPublishedTime) {
 			log.Print("Ignoring out of order message: ", publishTime.String())
 			return
 		}
 
-		latest_published_time = publishTime
+		latestPublishedTime = publishTime
 
-		for _, status := range cloud_build_statuses {
+		for _, status := range cloudBuildStatuses {
 			isCurrent := status == currentStatus
 			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(isCurrent)
-			publish(client, mqtt_metrics_topic, publishedMessage)
-			log.Print(fmt.Sprintf("Published message: %s to topic %s", publishedMessage, mqtt_metrics_topic))
+			publish(client, mqttMetricsTopic, publishedMessage)
+			log.Print(fmt.Sprintf("Published message: %s to topic %s", publishedMessage, mqttMetricsTopic))
 		}
 	}
 
 	var subscribeToCloudBuildTopic = func(client mqtt.Client) {
-		println("Subscribing to:", mqtt_topic)
-		if token := client.Subscribe(mqtt_topic, 0, messageHandler); token.Wait() && token.Error() != nil {
+		println("Subscribing to:", mqttTopic)
+		if token := client.Subscribe(mqttTopic, 0, messageHandler); token.Wait() && token.Error() != nil {
 			log.Print(fmt.Sprintf("Subscription error", token.Error()))
 			os.Exit(1)
 		}
@@ -126,7 +126,7 @@ func main() {
 		log.Print("Reconnecting")
 	}
 
-	opts := mqtt.NewClientOptions().AddBroker(mqtt_url)
+	opts := mqtt.NewClientOptions().AddBroker(mqttUrl)
 	opts.SetOnConnectHandler(logConnection)
 	opts.SetConnectionLostHandler(logConnectionLost)
 	opts.SetReconnectingHandler(logReconnecting)
@@ -137,7 +137,7 @@ func main() {
 	mqtt.CRITICAL = log.New(os.Stdout, "[CRIT] ", 0)
 	mqtt.WARN = log.New(os.Stdout, "[WARN]  ", 0)
 
-	println("Connecting to: ", mqtt_url)
+	println("Connecting to: ", mqttUrl)
 	c := mqtt.NewClient(opts)
 
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
