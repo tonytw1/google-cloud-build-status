@@ -60,7 +60,7 @@ func main() {
 
 		// Parse the JSON payload
 		var push Callback
-		err = json.Unmarshal(payload, &push)
+		err := json.Unmarshal(payload, &push)
 		if err != nil {
 			log.Print("Could not parse message")
 			return
@@ -68,7 +68,7 @@ func main() {
 
 		// Extract the payload
 		var base64Data = push.Message.Data
-		var dataJson, err = base64.StdEncoding.DecodeString(base64Data)
+		dataJson, err := base64.StdEncoding.DecodeString(base64Data)
 		if err != nil {
 			log.Print("Could not decode base64 payload")
 		}
@@ -84,8 +84,8 @@ func main() {
 		log.Print("Status is: ", currentStatus)
 
 		log.Print("published time string is: " + push.Message.PublishTime)
-		var publishTime, derr = time.Parse(time.RFC3339, push.Message.PublishTime)
-		if derr != nil {
+		publishTime, err := time.Parse(time.RFC3339, push.Message.PublishTime)
+		if err != nil {
 			log.Print("Could not parse published date")
 			return
 		}
