@@ -106,7 +106,7 @@ func main() {
 	}
 
 	var subscribeToCloudBuildTopic = func(client mqtt.Client) {
-		println("Subscribing to:", mqttTopic)
+		log.Print("Subscribing to:", mqttTopic)
 		if token := client.Subscribe(mqttTopic, 0, messageHandler); token.Wait() && token.Error() != nil {
 			log.Print(fmt.Sprintf("Subscription error", token.Error()))
 			os.Exit(1)
@@ -137,7 +137,7 @@ func main() {
 	mqtt.CRITICAL = log.New(os.Stdout, "[CRIT] ", 0)
 	mqtt.WARN = log.New(os.Stdout, "[WARN]  ", 0)
 
-	println("Connecting to: ", mqttUrl)
+	log.Print("Connecting to: ", mqttUrl)
 	c := mqtt.NewClient(opts)
 
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
