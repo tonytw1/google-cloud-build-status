@@ -8,6 +8,7 @@ import (
 	"github.com/tkanos/gonfig"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
 	"time"
 )
@@ -145,9 +146,9 @@ func main() {
 	}
 	defer c.Disconnect(250)
 
-	for {
-		time.Sleep(5 * time.Second)
-	}
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, os.Interrupt)
+	<-exitSignal
 }
 
 func publish(c mqtt.Client, topic string, message string) {
