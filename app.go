@@ -100,7 +100,7 @@ func main() {
 
 		for _, status := range cloudBuildStatuses {
 			isCurrent := status == currentStatus
-			publishedMessage := "cloudbuild_" + status + ":" + strconv.FormatBool(isCurrent)
+			publishedMessage := status + ":" + strconv.FormatBool(isCurrent)
 			publish(client, mqttMetricsTopic, publishedMessage)
 			log.Print(fmt.Sprintf("Published message: %s to topic %s", publishedMessage, mqttMetricsTopic))
 		}
